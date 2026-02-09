@@ -1,6 +1,6 @@
 # SCV Scan
 
-A Claude Code skill that audits Solidity codebases for security vulnerabilities using a structured, reference-driven methodology.
+A Claude Code skill that audits Solidity codebases for security vulnerabilities by referencing 36 unique vulnerability types.
 
 ## Setup
 

@@ -1,6 +1,6 @@
 # SCV Scan
 
-A Claude Code skill that scans Solidity codebases for security vulnerabilities by referencing 36 unique vulnerability types.
+A Claude Code skill that scans Solidity codebases for security vulnerabilities by referencing 36 unique vulnerability types source from [smart-contract-vulnerabilities](https://github.com/kadenzipfel/smart-contract-vulnerabilities).
 
 ## Setup
 

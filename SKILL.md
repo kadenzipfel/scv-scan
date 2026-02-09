@@ -100,6 +100,8 @@ After all findings, include a summary section:
 | Info     | N     |
 ```
 
+Write the final report to `scv-scan.md`
+
 ## Severity Guidelines
 
 - **Critical**: Direct loss of funds, unauthorized fund extraction, permanent freezing of funds

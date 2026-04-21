@@ -1,6 +1,16 @@
 ---
 name: scv-scan
-description: Systematically audit Solidity smart contract codebases for security vulnerabilities using a 4-phase approach - load a vulnerability cheatsheet, sweep code with grep and semantic analysis, deep-validate candidates against reference files, and output a severity-ranked findings
+description: "Audit Solidity smart contracts for security vulnerabilities using a 4-phase workflow: load a 36-class vulnerability cheatsheet, sweep .sol files with grep and semantic analysis, deep-validate candidates against reference files, and output severity-ranked findings. Use when the user asks to audit, review, scan, or check Solidity or Ethereum smart contracts for security issues, exploits, reentrancy, or EVM vulnerabilities."
+user-invocable: true
+triggers:
+  - "audit smart contract"
+  - "scan solidity"
+  - "security review"
+  - "find vulnerabilities"
+  - "check for exploits"
+  - "reentrancy check"
+  - "contract audit"
+  - "scv scan"
 ---
 
 # Smart Contract Vulnerability Auditor
@@ -17,16 +27,6 @@ references/
   ...
 ```
 
-## Reference File Format
-
-Each full reference file in `references/` has these sections:
-
-- **Preconditions** — what must be true for the vulnerability to exist
-- **Vulnerable Pattern** — annotated Solidity anti-pattern
-- **Detection Heuristics** — step-by-step reasoning to confirm the vulnerability
-- **False Positives** — when the pattern appears but isn't exploitable
-- **Remediation** — how to fix it
-
 ## Audit Workflow
 
 ### Phase 1: Load the Cheatsheet
@@ -41,9 +41,14 @@ Perform two complementary passes over the codebase.
 
 #### Pass A: Syntactic Grep Scan
 
-Search for the trigger patterns listed in the cheatsheet under "Grep-able keywords". Use grep, ripgrep, or equivalent to find
+Search for trigger patterns from the cheatsheet. Run concrete scans like:
 
-For each match, record: file, line number(s), matched pattern, and suspected vulnerability type(s).
+```bash
+rg -n 'call\{|delegatecall|selfdestruct|tx\.origin|ecrecover|block\.timestamp|block\.number' --glob '*.sol'
+rg -n '\.transfer\(|\.send\(|sstore|extcodesize|\.code\.length' --glob '*.sol'
+```
+
+Adapt patterns to match the cheatsheet keywords for each vulnerability class. For each match, record: file, line number(s), matched pattern, and suspected vulnerability type(s).
 
 #### Pass B: Structural / Semantic Analysis
 
@@ -65,7 +70,7 @@ Merge results from Pass A and Pass B into a deduplicated candidate list. Each en
 
 For each candidate in the list:
 
-1. **Read the full reference file** for the suspected vulnerability type (e.g., `references/reentrancy.md`). Read it now — not before.
+1. **Read the full reference file** for the suspected vulnerability type (e.g., `references/reentrancy.md`). Each file contains: Preconditions, Vulnerable Pattern, Detection Heuristics, False Positives, and Remediation. Read it now — not before.
 2. **Walk through every Detection Heuristic step** against the actual code. Be precise — trace variable values, check modifiers, follow call chains.
 3. **Check every False Positive condition**. If any false positive condition matches, discard the finding and note why.
 4. **Cross-reference**: one code location can match multiple vulnerability types. If the cheatsheet maps the same pattern to multiple references, read and validate against each.
@@ -117,9 +122,5 @@ Write the final report to `scv-scan.md`
 
 ## Key Principles
 
-- **Cheatsheet first, references on-demand.** Never read all full reference files upfront. The cheatsheet gives you ambient awareness; full references are for validation only.
-- **Semantic > syntactic.** The hardest bugs don't grep. Cross-function reentrancy, missing access control, incorrect inheritance — these require reading and reasoning, not pattern matching.
-- **Trace across boundaries.** Follow state across function calls, contract calls, and inheritance chains. Hidden external calls (safe mint/transfer hooks, ERC-777 callbacks) are as dangerous as explicit `.call()`.
-- **One location, multiple bugs.** A single line can be vulnerable to reentrancy AND unchecked return value. Check all applicable references.
 - **Version matters.** Always check `pragma solidity` — many vulnerabilities are version-dependent (e.g., overflow is checked by default in ≥0.8.0).
-- **False positives are noise.** Be rigorous about checking false positive conditions. A shorter report with high-confidence findings is more valuable than a long one padded with maybes.
+- **Trace across boundaries.** Follow state across function calls, contract calls, and inheritance chains. Hidden external calls (safeMint/transfer hooks, ERC-777 callbacks) are as dangerous as explicit `.call()`.
